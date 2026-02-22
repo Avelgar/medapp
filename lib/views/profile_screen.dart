@@ -7,6 +7,7 @@ import '../viewmodels/profile_view_model.dart';
 import '../viewmodels/auth_view_model.dart';
 import '../viewmodels/sync_view_model.dart';
 import '../viewmodels/tracker_view_model.dart';
+import '../viewmodels/theme_view_model.dart';
 import 'register_screen.dart';
 import 'login_screen.dart';
 import '../main.dart';
@@ -90,7 +91,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
       appBar: AppBar(
         title: Text(_isEditing ? 'Редактирование' : 'Профиль'),
         centerTitle: true,
@@ -113,6 +113,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildViewInfo(UserProfile user, AuthData? auth) {
+    final themeVM = context.watch<ThemeViewModel>();
+    final isDark = themeVM.isDarkMode;
+    final theme = Theme.of(context);
+
     return Column(
       children: [
         const SizedBox(height: 20),
@@ -143,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
@@ -156,6 +160,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Divider(),
               _buildProfileRow("Рост", "${user.height} см"),
             ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        Container(
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: SwitchListTile(
+            title: const Text(
+              "Тёмная тема",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            secondary: Icon(
+              isDark ? Icons.dark_mode : Icons.light_mode,
+              color: isDark ? Colors.amber : AppColors.primary,
+            ),
+            value: isDark,
+            onChanged: (value) => themeVM.toggleTheme(value),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         ),
 
@@ -191,6 +219,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
+                side: BorderSide(
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge!.color!.withValues(alpha: 0.3),
+                ),
+              ),
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const RegisterScreen()),
@@ -221,7 +257,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ],
     );
   }
-
   // --- WIDGETS ---
 
   Widget _buildProfileRow(String label, String value) {
@@ -245,11 +280,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: isDestructive ? Colors.red : Colors.black,
+        backgroundColor: Theme.of(context).cardColor,
+        foregroundColor: isDestructive
+            ? Colors.red
+            : Theme.of(context).textTheme.bodyLarge?.color,
         elevation: 0,
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       onPressed: onTap,
       child: Row(

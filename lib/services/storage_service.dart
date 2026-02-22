@@ -4,6 +4,7 @@ class StorageService {
   static const String _profileKey = 'user_profile_data';
   static const String _authKey = 'user_auth_data';
   static const String _sleepStartKey = 'current_sleep_start_time';
+  static const String _themeKey = 'app_theme_mode';
 
   Future<void> saveProfile(String jsonString) async {
     final prefs = await SharedPreferences.getInstance();
@@ -49,5 +50,15 @@ class StorageService {
   Future<void> clearSleepStart() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_sleepStartKey);
+  }
+
+  Future<void> saveTheme(bool isDark) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_themeKey, isDark);
+  }
+
+  Future<bool> loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_themeKey) ?? false;
   }
 }

@@ -53,6 +53,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = profileVM.user;
     final ChartPeriod period = trackerVM.selectedPeriod;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     if (user == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -81,7 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
         : DateFormat('d MMMM yyyy', 'ru').format(trackerVM.dashboardDate);
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -94,17 +96,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "Доброе утро,",
                         style: TextStyle(
-                          color: AppColors.textSec,
+                          color:
+                              theme.textTheme.bodySmall?.color ??
+                              AppColors.textSec,
                           fontSize: 16,
                         ),
                       ),
                       Text(
                         user.name,
-                        style: const TextStyle(
-                          color: AppColors.textMain,
+                        style: TextStyle(
+                          color: theme.textTheme.bodyLarge?.color,
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
                         ),
@@ -118,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: CircleAvatar(
                       radius: 25,
-                      backgroundColor: Colors.white,
+                      backgroundColor: theme.cardColor,
                       child: Text(
                         user.name.isNotEmpty ? user.name[0] : "?",
                         style: const TextStyle(
@@ -140,11 +144,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     horizontal: 20,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: theme.cardColor,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
+                        color: isDark
+                            ? Colors.transparent
+                            : Colors.black.withValues(alpha: 0.03),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -166,9 +172,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(width: 5),
-                      const Icon(
+                      Icon(
                         Icons.keyboard_arrow_down,
-                        color: AppColors.textSec,
+                        color:
+                            theme.textTheme.bodySmall?.color ??
+                            AppColors.textSec,
                       ),
                     ],
                   ),
@@ -184,6 +192,8 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 20),
 
               _buildArcCard(
+                theme: theme,
+                isDark: isDark,
                 title: "Калории",
                 value: "$todayCal",
                 subValue: "из $todayCalNorm ккал",
@@ -201,6 +211,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Expanded(
                     child: _buildArcCard(
+                      theme: theme,
+                      isDark: isDark,
                       title: "Вода",
                       value: "$todayWater",
                       subValue: "из $todayWaterNorm мл",
@@ -216,6 +228,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 15),
                   Expanded(
                     child: _buildArcCard(
+                      theme: theme,
+                      isDark: isDark,
                       title: "Сон",
                       value: todaySleep.toStringAsFixed(1),
                       subValue: "из ${user.sleepNorm} ч",
@@ -234,6 +248,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Expanded(
                     child: _buildArcCard(
+                      theme: theme,
+                      isDark: isDark,
                       title: "Настроение",
                       value: todayMood.toStringAsFixed(1),
                       subValue: "из 5",
@@ -246,6 +262,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 15),
                   Expanded(
                     child: _buildArcCard(
+                      theme: theme,
+                      isDark: isDark,
                       title: "Спорт",
                       value: todayActivity.round().toString(),
                       subValue: "из $todayActivityNorm MET",
@@ -315,9 +333,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // --- WIDGETS ---
-
   Widget _buildArcCard({
+    required ThemeData theme,
+    required bool isDark,
     required String title,
     required String value,
     required String subValue,
@@ -332,11 +350,13 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: isDark
+                  ? Colors.transparent
+                  : Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -349,10 +369,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textSec,
+                    color: theme.textTheme.bodySmall?.color,
                   ),
                 ),
                 Icon(icon, color: color, size: 20),
@@ -363,7 +383,11 @@ class _HomeScreenState extends State<HomeScreen> {
               height: isBig ? 160 : 100,
               width: double.infinity,
               child: CustomPaint(
-                painter: ArcPainter(percent: percent, color: color),
+                painter: ArcPainter(
+                  percent: percent,
+                  color: color,
+                  bgColor: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                ),
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 30),
@@ -375,15 +399,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             fontSize: isBig ? 36 : 24,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textMain,
+                            color: theme.textTheme.bodyLarge?.color,
                             height: 1,
                           ),
                         ),
                         Text(
                           subValue,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textSec,
+                            color: theme.textTheme.bodySmall?.color,
                           ),
                         ),
                       ],
@@ -441,7 +465,12 @@ class _HomeScreenState extends State<HomeScreen> {
 class ArcPainter extends CustomPainter {
   final double percent;
   final Color color;
-  const ArcPainter({required this.percent, required this.color});
+  final Color bgColor;
+  const ArcPainter({
+    required this.percent,
+    required this.color,
+    required this.bgColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -449,7 +478,7 @@ class ArcPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final paintBg = Paint()
-      ..color = Colors.grey.shade200
+      ..color = bgColor
       ..strokeWidth = 5
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;

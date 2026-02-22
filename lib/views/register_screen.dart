@@ -95,13 +95,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textMain),
+          icon: Icon(Icons.arrow_back, color: theme.iconTheme.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -127,28 +127,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                const Text(
+                Text(
                   "Регистрация",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textMain,
+                    color: theme.textTheme.bodyLarge?.color,
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   "Создайте аккаунт бесплатно",
-                  style: TextStyle(fontSize: 16, color: AppColors.textSec),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color:
+                        theme.textTheme.bodySmall?.color ?? AppColors.textSec,
+                  ),
                 ),
                 const SizedBox(height: 40),
 
                 _buildShadowInput(
+                  context: context,
                   controller: _emailController,
                   hint: "Email",
                   icon: Icons.email_outlined,
                 ),
                 const SizedBox(height: 20),
                 _buildShadowInput(
+                  context: context,
                   controller: _passwordController,
                   hint: "Пароль",
                   icon: Icons.lock_outline,
@@ -159,6 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 20),
                 _buildShadowInput(
+                  context: context,
                   controller: _confirmPasswordController,
                   hint: "Повторите пароль",
                   icon: Icons.lock_outline,
@@ -195,9 +202,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       "Уже есть аккаунт? ",
-                      style: TextStyle(color: AppColors.textSec),
+                      style: TextStyle(
+                        color:
+                            theme.textTheme.bodySmall?.color ??
+                            AppColors.textSec,
+                      ),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pushReplacement(
@@ -223,6 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildShadowInput({
+    required BuildContext context,
     required TextEditingController controller,
     required String hint,
     required IconData icon,
@@ -230,13 +242,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool isVisible = false,
     VoidCallback? onVisibilityToggle,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: isDark
+                ? Colors.transparent
+                : Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -245,14 +262,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: TextField(
         controller: controller,
         obscureText: isPass && !isVisible,
+        style: TextStyle(color: theme.textTheme.bodyLarge?.color),
         decoration: InputDecoration(
           hintText: hint,
-          prefixIcon: Icon(icon, color: AppColors.textSec),
+          hintStyle: TextStyle(
+            color: isDark ? Colors.grey[600] : Colors.grey[400],
+          ),
+          prefixIcon: Icon(
+            icon,
+            color: isDark ? Colors.grey[400] : AppColors.textSec,
+          ),
           suffixIcon: isPass
               ? IconButton(
                   icon: Icon(
                     isVisible ? Icons.visibility : Icons.visibility_off,
-                    color: AppColors.textSec,
+                    color: isDark ? Colors.grey[400] : AppColors.textSec,
                   ),
                   onPressed: onVisibilityToggle,
                 )

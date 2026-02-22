@@ -23,6 +23,9 @@ class ChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     double maxX = 6;
     if (period == ChartPeriod.day) maxX = 24;
     if (period == ChartPeriod.month) maxX = 29;
@@ -42,11 +45,13 @@ class ChartCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 24, 16),
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: isDark
+                ? Colors.transparent
+                : Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -60,14 +65,18 @@ class ChartCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  color: theme.textTheme.bodyLarge?.color,
                 ),
               ),
               Text(
                 "Норма: ${normValue.toStringAsFixed(1)}",
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
               ),
             ],
           ),
@@ -79,8 +88,10 @@ class ChartCard extends StatelessWidget {
                   show: true,
                   drawVerticalLine: false,
                   horizontalInterval: calculatedMaxY / 5,
-                  getDrawingHorizontalLine: (value) =>
-                      const FlLine(color: Colors.black12, strokeWidth: 1),
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: isDark ? Colors.white12 : Colors.black12,
+                    strokeWidth: 1,
+                  ),
                 ),
                 titlesData: FlTitlesData(
                   topTitles: const AxisTitles(
@@ -117,7 +128,6 @@ class ChartCard extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         final valInt = value.toInt();
                         String text = '';
-
                         if (period == ChartPeriod.day) {
                           if (valInt >= 0 && valInt <= 24) {
                             text = '${valInt.toString().padLeft(2, '0')}:00';
@@ -128,14 +138,12 @@ class ChartCard extends StatelessWidget {
                           final date = DateTime.now().subtract(
                             Duration(days: daysBack),
                           );
-
                           if (period == ChartPeriod.month) {
                             text = DateFormat('d MMM', 'ru').format(date);
                           } else {
                             text = DateFormat('E', 'ru').format(date);
                           }
                         }
-
                         return Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
@@ -168,17 +176,32 @@ class ChartCard extends StatelessWidget {
                 lineBarsData: [
                   LineChartBarData(
                     spots: points,
-                    isCurved: false,
+                    isCurved: true,
+                    preventCurveOverShooting: true,
                     color: color,
                     barWidth: 3,
                     isStrokeCapRound: true,
                     dotData: FlDotData(
                       show: period != ChartPeriod.month,
                       checkToShowDot: (spot, barData) => spot.y > 0,
+                      getDotPainter: (spot, percent, barData, index) =>
+                          FlDotCirclePainter(
+                            radius: 4,
+                            color: theme.cardColor,
+                            strokeWidth: 2,
+                            strokeColor: color,
+                          ),
                     ),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: color.withValues(alpha: 0.15),
+                      gradient: LinearGradient(
+                        colors: [
+                          color.withValues(alpha: 0.3),
+                          color.withValues(alpha: 0.0),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
                     ),
                   ),
                 ],

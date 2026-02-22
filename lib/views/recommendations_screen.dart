@@ -6,7 +6,6 @@ import '../viewmodels/tracker_view_model.dart';
 import '../models/user_profile.dart';
 import '../viewmodels/auth_view_model.dart';
 import 'widgets/ai_card.dart';
-import '../main.dart'; // AppColors
 
 class RecommendationsScreen extends StatelessWidget {
   const RecommendationsScreen({super.key});
@@ -18,14 +17,15 @@ class RecommendationsScreen extends StatelessWidget {
     final user = profileVM.user;
     final isPremium = context.watch<AuthViewModel>().isPremium;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     if (user == null) {
       return const Scaffold(body: Center(child: Text("Нет данных профиля")));
     }
 
-    // --- РАСЧЕТЫ ---
     final double heightM = user.height / 100.0;
     final double bmi = (heightM > 0) ? user.weight / pow(heightM, 2) : 0;
-
     final double minIdealWeight = 18.5 * pow(heightM, 2);
     final double maxIdealWeight = 24.9 * pow(heightM, 2);
 
@@ -46,30 +46,23 @@ class RecommendationsScreen extends StatelessWidget {
         list.isEmpty ? 0 : list.fold(0.0, (sum, spot) => sum + spot.y) / 7;
 
     final double avgCal = getAvg(trackerVM.stableWeeklyCalories);
-
     final double normCal = trackerVM
         .calculateAverageWeeklyCalorieGoal(user)
         .toDouble();
-
     final double avgWater = getAvg(trackerVM.stableWeeklyWater);
     final double normWater = trackerVM.calculateDailyWaterGoal(user).toDouble();
-
     final double avgSleep = getAvg(trackerVM.stableWeeklySleep);
     final double normSleep = user.sleepNorm;
-
     final double avgMood = getAvg(trackerVM.stableWeeklyMood);
-
     final double avgSport = getAvg(trackerVM.stableWeeklyActivity);
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
       appBar: AppBar(
         title: const Text(
           'Анализ здоровья',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: AppColors.bg,
         scrolledUnderElevation: 0,
       ),
       body: SingleChildScrollView(
@@ -77,7 +70,10 @@ class RecommendationsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (isPremium) const AICardWidget() else _buildPremiumPromo(),
+            if (isPremium)
+              const AICardWidget()
+            else
+              _buildPremiumPromo(theme, isDark),
             const SizedBox(height: 30),
 
             const Text(
@@ -89,7 +85,7 @@ class RecommendationsScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
@@ -98,9 +94,12 @@ class RecommendationsScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           "Индекс массы (BMI)",
-                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                          style: TextStyle(
+                            color: theme.textTheme.bodySmall?.color,
+                            fontSize: 13,
+                          ),
                         ),
                         const SizedBox(height: 5),
                         Row(
@@ -144,7 +143,9 @@ class RecommendationsScreen extends StatelessWidget {
                     child: CircularProgressIndicator(
                       value: (bmi / 40).clamp(0.0, 1.0),
                       color: statusColor,
-                      backgroundColor: Colors.grey.shade100,
+                      backgroundColor: isDark
+                          ? Colors.grey.shade800
+                          : Colors.grey.shade100,
                       strokeWidth: 6,
                       strokeCap: StrokeCap.round,
                     ),
@@ -186,6 +187,7 @@ class RecommendationsScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildMiniCard(
+                    theme,
                     "Вес",
                     "${user.weight} кг",
                     Icons.monitor_weight,
@@ -194,6 +196,7 @@ class RecommendationsScreen extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _buildMiniCard(
+                    theme,
                     "Рост",
                     "${user.height} см",
                     Icons.height,
@@ -202,6 +205,7 @@ class RecommendationsScreen extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _buildMiniCard(
+                    theme,
                     "Возраст",
                     "${user.age} лет",
                     Icons.cake,
@@ -212,25 +216,27 @@ class RecommendationsScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            const Text(
+            Text(
               "Ваша цель:",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey,
+                color: theme.textTheme.bodySmall?.color,
               ),
             ),
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
                 children: [
                   _buildToggleBtn(
                     context,
+                    theme,
+                    isDark,
                     user,
                     "Похудение",
                     "lose",
@@ -238,12 +244,22 @@ class RecommendationsScreen extends StatelessWidget {
                   ),
                   _buildToggleBtn(
                     context,
+                    theme,
+                    isDark,
                     user,
                     "Норма",
                     "maintain",
                     Colors.green,
                   ),
-                  _buildToggleBtn(context, user, "Набор", "gain", Colors.blue),
+                  _buildToggleBtn(
+                    context,
+                    theme,
+                    isDark,
+                    user,
+                    "Набор",
+                    "gain",
+                    Colors.blue,
+                  ),
                 ],
               ),
             ),
@@ -257,6 +273,8 @@ class RecommendationsScreen extends StatelessWidget {
             const SizedBox(height: 15),
 
             _buildHabitRow(
+              theme,
+              isDark,
               "Питание",
               "${avgCal.round()} / ${normCal.round()}",
               "ккал",
@@ -265,6 +283,8 @@ class RecommendationsScreen extends StatelessWidget {
               avgCal / normCal,
             ),
             _buildHabitRow(
+              theme,
+              isDark,
               "Вода",
               "${avgWater.round()} / ${normWater.round()}",
               "мл",
@@ -273,6 +293,8 @@ class RecommendationsScreen extends StatelessWidget {
               avgWater / normWater,
             ),
             _buildHabitRow(
+              theme,
+              isDark,
               "Сон",
               "${avgSleep.toStringAsFixed(1)} / ${normSleep.toStringAsFixed(1)}",
               "ч",
@@ -281,6 +303,8 @@ class RecommendationsScreen extends StatelessWidget {
               avgSleep / normSleep,
             ),
             _buildHabitRow(
+              theme,
+              isDark,
               "Настроение",
               avgMood.toStringAsFixed(1),
               "/ 5.0",
@@ -289,6 +313,8 @@ class RecommendationsScreen extends StatelessWidget {
               avgMood / 5.0,
             ),
             _buildHabitRow(
+              theme,
+              isDark,
               "Активность",
               "${avgSport.round()} / 100",
               "MET",
@@ -302,13 +328,16 @@ class RecommendationsScreen extends StatelessWidget {
     );
   }
 
-  // --- WIDGETS ---
-
-  Widget _buildMiniCard(String title, String value, IconData icon) {
+  Widget _buildMiniCard(
+    ThemeData theme,
+    String title,
+    String value,
+    IconData icon,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -321,7 +350,10 @@ class RecommendationsScreen extends StatelessWidget {
           ),
           Text(
             title,
-            style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+            style: TextStyle(
+              color: theme.textTheme.bodySmall?.color,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
@@ -330,6 +362,8 @@ class RecommendationsScreen extends StatelessWidget {
 
   Widget _buildToggleBtn(
     BuildContext context,
+    ThemeData theme,
+    bool isDark,
     UserProfile user,
     String title,
     String value,
@@ -356,7 +390,9 @@ class RecommendationsScreen extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 12,
-              color: isSelected ? Colors.white : Colors.grey.shade400,
+              color: isSelected
+                  ? Colors.white
+                  : (isDark ? Colors.grey.shade600 : Colors.grey.shade400),
             ),
           ),
         ),
@@ -365,6 +401,8 @@ class RecommendationsScreen extends StatelessWidget {
   }
 
   Widget _buildHabitRow(
+    ThemeData theme,
+    bool isDark,
     String title,
     String val,
     String unit,
@@ -376,7 +414,7 @@ class RecommendationsScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -406,19 +444,19 @@ class RecommendationsScreen extends StatelessWidget {
                     ),
                     RichText(
                       text: TextSpan(
-                        style: const TextStyle(
-                          fontFamily: 'Roboto',
-                          color: Colors.black,
-                        ),
+                        style: const TextStyle(fontFamily: 'Roboto'),
                         children: [
                           TextSpan(
                             text: val,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: theme.textTheme.bodyLarge?.color,
+                            ),
                           ),
                           TextSpan(
                             text: " $unit",
-                            style: const TextStyle(
-                              color: Colors.grey,
+                            style: TextStyle(
+                              color: theme.textTheme.bodySmall?.color,
                               fontSize: 12,
                             ),
                           ),
@@ -432,7 +470,9 @@ class RecommendationsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: percent.isNaN ? 0.0 : percent.clamp(0.0, 1.0),
-                    backgroundColor: Colors.grey.shade100,
+                    backgroundColor: isDark
+                        ? Colors.grey.shade800
+                        : Colors.grey.shade100,
                     color: color,
                     minHeight: 6,
                   ),
@@ -445,13 +485,15 @@ class RecommendationsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPremiumPromo() {
+  Widget _buildPremiumPromo(ThemeData theme, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+        ),
       ),
       child: Row(
         children: [
@@ -464,17 +506,20 @@ class RecommendationsScreen extends StatelessWidget {
             child: const Icon(Icons.lock, color: Colors.orange),
           ),
           const SizedBox(width: 15),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   "AI Аналитика",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 Text(
                   "Разблокируйте Premium для персональных советов",
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                  style: TextStyle(
+                    color: theme.textTheme.bodySmall?.color,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),

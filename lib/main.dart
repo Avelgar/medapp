@@ -12,6 +12,7 @@ import 'viewmodels/auth_view_model.dart';
 import 'viewmodels/tracker_view_model.dart';
 import 'viewmodels/notification_view_model.dart';
 import 'viewmodels/sync_view_model.dart';
+import 'viewmodels/theme_view_model.dart';
 
 import 'views/main_screen.dart';
 import 'views/onboarding_screen.dart';
@@ -49,6 +50,11 @@ class AppColors {
   static const Color accentLime = Color(0xFFD6E774);
   static const Color accentFire = Color(0xFFFF7F50);
   static const Color accentWater = Color(0xFF4CC9F0);
+
+  static const Color darkBg = Color(0xFF121212);
+  static const Color darkCard = Color(0xFF1E1E1E);
+  static const Color darkTextMain = Color(0xFFF5F5F5);
+  static const Color darkTextSec = Color(0xFFA0A0A0);
 }
 
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
@@ -68,6 +74,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => NotificationViewModel()),
         ChangeNotifierProvider(create: (_) => SyncViewModel()),
         ChangeNotifierProvider(create: (_) => PageViewModel()),
+        ChangeNotifierProvider(create: (_) => ThemeViewModel()),
       ],
       child: const MyApp(),
     ),
@@ -79,55 +86,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeVM = context.watch<ThemeViewModel>();
+
     return MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Health Sync',
       scaffoldMessengerKey: rootScaffoldMessengerKey,
+
+      themeMode: themeVM.themeMode,
+      // СВЕТЛАЯ ТЕМА
       theme: ThemeData(
+        brightness: Brightness.light,
         primaryColor: AppColors.primary,
         scaffoldBackgroundColor: AppColors.bg,
+        cardColor: AppColors.card,
         fontFamily: 'Roboto',
         useMaterial3: true,
-
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: AppColors.textMain),
+          bodyMedium: TextStyle(color: AppColors.textMain),
         ),
-
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 18,
-          ),
-          labelStyle: const TextStyle(color: AppColors.textSec),
-        ),
-
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.bg,
           elevation: 0,
@@ -138,7 +117,37 @@ class MyApp extends StatelessWidget {
           ),
           iconTheme: IconThemeData(color: AppColors.textMain),
         ),
+        elevatedButtonTheme: _btnTheme(AppColors.primary, Colors.white),
       ),
+
+      // ТЁМНАЯ ТЕМА
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: AppColors.primary,
+        scaffoldBackgroundColor: AppColors.darkBg,
+        cardColor: AppColors.darkCard,
+        fontFamily: 'Roboto',
+        useMaterial3: true,
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: AppColors.darkTextMain),
+          bodyMedium: TextStyle(color: AppColors.darkTextMain),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColors.darkBg,
+          elevation: 0,
+          titleTextStyle: TextStyle(
+            color: AppColors.darkTextMain,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          iconTheme: IconThemeData(color: AppColors.darkTextMain),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: AppColors.darkCard,
+        ),
+        elevatedButtonTheme: _btnTheme(AppColors.primary, Colors.white),
+      ),
+
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -146,6 +155,19 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: const [Locale('ru', 'RU')],
       home: const AuthCheckWrapper(),
+    );
+  }
+
+  ElevatedButtonThemeData _btnTheme(Color bg, Color fg) {
+    return ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: bg,
+        foregroundColor: fg,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

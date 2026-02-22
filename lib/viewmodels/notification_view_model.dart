@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../services/notification_service.dart';
 import 'tracker_view_model.dart';
@@ -107,25 +108,53 @@ class NotificationViewModel extends ChangeNotifier {
     }
 
     final now = DateTime.now();
+    final random = Random();
+
+    final titles1 = ["Время движения!", "Разомнемся?", "Легкая пауза"];
+    final bodies1 = [
+      "Разминка 5 минут зарядит энергией.",
+      "Потянитесь и сделайте пару глубоких вдохов.",
+      "Встаньте со стула на пару минут.",
+    ];
+
+    final titles2 = ["Спорт-брейк", "Время активности", "Разогрев"];
+    final bodies2 = [
+      "Как насчет небольшой прогулки?",
+      "Пройдитесь по лестнице или сделайте приседания.",
+      "Тело скажет спасибо за 10 минут ходьбы.",
+    ];
+
+    final titles3 = [
+      "Вечерняя активность",
+      "Закрываем кольца",
+      "Финальный рывок",
+    ];
+    final bodies3 = [
+      "Закройте кольца активности сегодня!",
+      "Отличный момент для вечерней растяжки или йоги.",
+      "Пройдитесь перед сном, это улучшит отдых.",
+    ];
 
     await _service.scheduleNotification(
       id: 400,
-      title: "Время движения!",
-      body: "Разминка 5 минут зарядит энергией.",
+      title: titles1[random.nextInt(titles1.length)],
+      body: bodies1[random.nextInt(bodies1.length)],
       scheduledDate: now.add(const Duration(hours: 2)),
       payload: 'activity',
     );
+
     await _service.scheduleNotification(
       id: 401,
-      title: "Спорт-брейк",
-      body: "Как насчет небольшой прогулки?",
+      title: titles2[random.nextInt(titles2.length)],
+      body: bodies2[random.nextInt(bodies2.length)],
       scheduledDate: now.add(const Duration(hours: 6)),
       payload: 'activity',
     );
+
     await _service.scheduleNotification(
       id: 402,
-      title: "Вечерняя активность",
-      body: "Закройте кольца активности сегодня!",
+      title: titles3[random.nextInt(titles3.length)],
+      body: bodies3[random.nextInt(bodies3.length)],
       scheduledDate: now.add(const Duration(hours: 10)),
       payload: 'activity',
     );
@@ -229,31 +258,118 @@ class NotificationViewModel extends ChangeNotifier {
   }
 
   String _getFoodMessage(int amount, int index) {
+    final random = Random();
+
     if (index == 0) {
-      return "Вам нужно перекусить (~$amount ккал). Это может быть йогурт с орехами.";
+      final messages = [
+        "Вам нужно перекусить (~$amount ккал). Это может быть йогурт с орехами.",
+        "Время подкрепиться! Цель: ~$amount ккал. Как насчет фрукта или батончика?",
+        "Ваш метаболизм ждет топлива! Съешьте что-нибудь на ~$amount ккал.",
+        "Пора кушать! Оптимальная порция сейчас — около ~$amount ккал.",
+        "Не забывайте питаться регулярно. Сейчас самое время для ~$amount ккал.",
+      ];
+      return messages[random.nextInt(messages.length)];
     }
+
     if (index == 1) {
-      return "Вы пропустили перекус! Энергия падает. Съешьте ~$amount ккал.";
+      final messages = [
+        "Вы пропустили перекус! Энергия падает. Съешьте ~$amount ккал.",
+        "Уровень глюкозы снижается. Пожалуйста, найдите время на ~$amount ккал.",
+        "Ваш организм просит еды! Желательно закинуть ~$amount ккал прямо сейчас.",
+        "Тревога! Батарейка садится. Срочная подзарядка на ~$amount ккал!",
+        "Вы слишком увлеклись делами. Сделайте паузу и съешьте ~$amount ккал.",
+      ];
+      return messages[random.nextInt(messages.length)];
     }
-    return "SOS! Организм начинает есть сам себя! Срочно поешьте!";
+
+    final messages = [
+      "SOS! Организм начинает есть сам себя! Срочно поешьте!",
+      "Внимание! Внутренний голодный зверь проснулся и требует еды! 🦖",
+      "Если вы сейчас же не поедите, ваш желудок объявит забастовку!",
+      "Критический уровень энергии! Бросайте всё и бегите к холодильнику!",
+      "Вы превращаетесь в голодного зомби. Спасите себя и окружающих — поешьте!",
+    ];
+    return messages[random.nextInt(messages.length)];
   }
 
   String _getWaterMessage(int amount, int index) {
+    final random = Random();
+
     if (index == 0) {
-      return "Время пить! Выпейте ~$amount мл воды или зеленого чая.";
+      final messages = [
+        "Время пить! Выпейте ~$amount мл воды или зеленого чая.",
+        "Водный баланс сам себя не поддержит. Нужно ~$amount мл.",
+        "Глоток свежести! Пора выпить ~$amount мл воды.",
+        "Тело просит воды. Около ~$amount мл будут в самый раз.",
+        "Немного чистой воды (~$amount мл) для ясного ума!",
+      ];
+      return messages[random.nextInt(messages.length)];
     }
-    if (index == 1) return "Пустыня Сахара отдыхает. Выпейте воды!";
-    return "Вы превращаетесь в изюм. СРОЧНО ВОДЫ!";
+
+    if (index == 1) {
+      final messages = [
+        "Пустыня Сахара отдыхает. Выпейте воды! (~$amount мл)",
+        "Вы пропустили стакан воды. Восполните баланс: ~$amount мл.",
+        "Клетки высыхают! Пора срочно выпить ~$amount мл воды.",
+        "Ваш организм работает всухую. Нужно ~$amount мл прямо сейчас.",
+        "Обезвоживание близко. Срочно выпейте ~$amount мл.",
+      ];
+      return messages[random.nextInt(messages.length)];
+    }
+
+    final messages = [
+      "Вы превращаетесь в изюм. СРОЧНО ВОДЫ!",
+      "Тревога! Уровень жидкости критически низок. Воду в студию!",
+      "Мозг усыхает без воды! Выпейте хоть стакан немедленно!",
+      "Кактус бы позавидовал вашей выдержке, но вы человек. Пейте!",
+      "Организм подает сигнал SOS. Вода — это жизнь, не забывайте!",
+    ];
+    return messages[random.nextInt(messages.length)];
   }
 
   String _getSleepMessage(int hoursAwake) {
+    final random = Random();
+
     if (hoursAwake < 18) {
-      return "Вы бодрствуете уже $hoursAwake ч. Пора восстановить силы.";
+      final messages = [
+        "Вы бодрствуете уже $hoursAwake ч. Пора восстановить силы.",
+        "День был долгим ($hoursAwake ч). Готовьтесь ко сну.",
+        "Пора замедляться. Вы на ногах уже $hoursAwake часов.",
+        "Мелатонин вырабатывается! Идеальное время лечь в кровать.",
+        "Кровать скучает по вам. Прошло $hoursAwake ч с момента пробуждения.",
+      ];
+      return messages[random.nextInt(messages.length)];
     }
+
     if (hoursAwake < 24) {
-      return "Глаза закрываются... Идите в кровать, $hoursAwake ч без сна это много.";
+      final messages = [
+        "Глаза закрываются... Идите в кровать, $hoursAwake ч без сна это много.",
+        "Переутомление близко. Вы не спите $hoursAwake ч. Отдыхайте!",
+        "Мозг требует перезагрузки. Срочно в постель!",
+        "Сон — лучшее лекарство, а вы пропустили прием. $hoursAwake ч бодрствования!",
+        "Вы работаете на резервных батареях. Пора спать.",
+      ];
+      return messages[random.nextInt(messages.length)];
     }
-    if (hoursAwake < 30) return "Вы не спите $hoursAwake часов. Вы зомби?";
-    return "Вы не спите уже $hoursAwake часов, вы труп... 💀";
+
+    if (hoursAwake < 30) {
+      final messages = [
+        "Вы не спите $hoursAwake часов. Вы зомби?",
+        "Критический недосып! $hoursAwake часов без сна разрушают организм.",
+        "Вам срочно нужна подушка. Не издевайтесь над собой!",
+        "Система перегружена. Экстренное выключение через 3.. 2.. 1..",
+        "Вы бьете рекорды, которые не стоит бить. Идите спать!",
+      ];
+      return messages[random.nextInt(messages.length)];
+    }
+
+    final messages = [
+      "Вы не спите уже $hoursAwake часов, вы труп... 💀",
+      "Сбой матрицы. Человек не может не спать $hoursAwake часов.",
+      "Пинг до реальности слишком высокий. Срочно в спящий режим!",
+      "Если вы это читаете, значит вам пора к врачу или в кровать.",
+      "Даже совы спят. А вы не спите $hoursAwake часов. Спокойной ночи!",
+    ];
+    return messages[random.nextInt(messages.length)];
   }
 }

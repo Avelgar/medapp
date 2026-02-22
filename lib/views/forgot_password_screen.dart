@@ -70,13 +70,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textMain),
+          icon: Icon(Icons.arrow_back, color: theme.iconTheme.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -101,26 +101,30 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-              const Text(
+              Text(
                 "Забыли пароль?",
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMain,
+                  color: theme.textTheme.bodyLarge?.color,
                 ),
               ),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 "Введите email для сброса",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textSec, fontSize: 16),
+                style: TextStyle(
+                  color: theme.textTheme.bodySmall?.color ?? AppColors.textSec,
+                  fontSize: 16,
+                ),
               ),
               const SizedBox(height: 40),
 
               _buildShadowInput(
-                _emailController,
-                "Email",
-                Icons.email_outlined,
+                context: context,
+                ctrl: _emailController,
+                hint: "Email",
+                icon: Icons.email_outlined,
               ),
 
               const SizedBox(height: 30),
@@ -154,18 +158,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  Widget _buildShadowInput(
-    TextEditingController ctrl,
-    String hint,
-    IconData icon,
-  ) {
+  Widget _buildShadowInput({
+    required BuildContext context,
+    required TextEditingController ctrl,
+    required String hint,
+    required IconData icon,
+  }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: isDark
+                ? Colors.transparent
+                : Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -173,9 +183,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ),
       child: TextField(
         controller: ctrl,
+        style: TextStyle(color: theme.textTheme.bodyLarge?.color),
         decoration: InputDecoration(
           hintText: hint,
-          prefixIcon: Icon(icon, color: AppColors.textSec),
+          hintStyle: TextStyle(
+            color: isDark ? Colors.grey[600] : Colors.grey[400],
+          ),
+          prefixIcon: Icon(
+            icon,
+            color: isDark ? Colors.grey[400] : AppColors.textSec,
+          ),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,

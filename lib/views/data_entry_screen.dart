@@ -353,12 +353,19 @@ class _DataEntryScreenState extends State<DataEntryScreen> {
     required VoidCallback onAdd,
     required List<Widget> items,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2)),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.transparent : Colors.black12,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(

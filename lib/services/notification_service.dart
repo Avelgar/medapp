@@ -14,10 +14,13 @@ class NotificationService {
     Future<void> Function(String?)? onDidReceiveNotificationResponse,
   ) async {
     tz.initializeTimeZones();
+
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@drawable/ic_notification');
+
     const InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
+
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
@@ -26,6 +29,7 @@ class NotificationService {
         }
       },
     );
+
     final androidImplementation = flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
@@ -56,6 +60,7 @@ class NotificationService {
           importance: Importance.max,
           priority: Priority.high,
           styleInformation: BigTextStyleInformation(''),
+          largeIcon: DrawableResourceAndroidBitmap('@drawable/ic_notification'),
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -88,6 +93,7 @@ class NotificationService {
           'instant_alerts',
           'Важные оповещения',
           importance: Importance.high,
+          largeIcon: DrawableResourceAndroidBitmap('@drawable/ic_notification'),
         ),
       ),
       payload: payload,
