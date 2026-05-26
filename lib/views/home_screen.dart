@@ -120,14 +120,35 @@ class _HomeScreenState extends State<HomeScreen> {
                       context,
                       MaterialPageRoute(builder: (_) => const ProfileScreen()),
                     ),
-                    child: CircleAvatar(
-                      radius: 25,
-                      backgroundColor: theme.cardColor,
-                      child: Text(
-                        user.name.isNotEmpty ? user.name[0] : "?",
-                        style: const TextStyle(
-                          fontSize: 20,
-                          color: AppColors.primary,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(
+                          colors: [AppColors.primary, Color(0xFF9D4EDD)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.4),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        radius: 25,
+                        backgroundColor: Colors
+                            .transparent, // Делаем прозрачным, чтобы было видно градиент
+                        child: Text(
+                          user.name.isNotEmpty
+                              ? user.name[0].toUpperCase()
+                              : "?",
+                          style: const TextStyle(
+                            fontSize: 22,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -352,13 +373,17 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(24),
+          // Добавляем еле заметную обводку для премиального вида
+          border: Border.all(
+            color: isDark ? Colors.white12 : Colors.grey.shade200,
+          ),
           boxShadow: [
             BoxShadow(
               color: isDark
                   ? Colors.transparent
-                  : Colors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+                  : Colors.black.withValues(alpha: 0.04), // Тень мягче
+              blurRadius: 20, // Радиус размытия больше
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -367,14 +392,21 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: theme.textTheme.bodySmall?.color,
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: theme.textTheme.bodySmall?.color,
+                      ),
+                    ),
                   ),
                 ),
+                const SizedBox(width: 5),
                 Icon(icon, color: color, size: 20),
               ],
             ),

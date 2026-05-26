@@ -12,6 +12,8 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pageVM = context.watch<PageViewModel>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     final List<Widget> screens = [
       const RecommendationsScreen(),
@@ -31,28 +33,51 @@ class MainScreen extends StatelessWidget {
         children: screens,
       ),
 
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: pageVM.currentIndex,
-        onDestinationSelected: (index) {
-          pageVM.setPage(index);
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.lightbulb_outline),
-            selectedIcon: Icon(Icons.lightbulb),
-            label: 'Советы',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Главная',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.add_circle_outline),
-            selectedIcon: Icon(Icons.add_circle),
-            label: 'Внести',
-          ),
-        ],
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          indicatorColor: AppColors.primary.withValues(alpha: 0.15),
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              );
+            }
+            return TextStyle(
+              fontSize: 12,
+              color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
+            );
+          }),
+        ),
+        child: NavigationBar(
+          height: 65,
+          backgroundColor: theme.cardColor,
+          surfaceTintColor: Colors.transparent,
+          elevation: 16,
+          shadowColor: Colors.black.withValues(alpha: 0.3),
+          selectedIndex: pageVM.currentIndex,
+          onDestinationSelected: (index) {
+            pageVM.setPage(index);
+          },
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.lightbulb_outline),
+              selectedIcon: Icon(Icons.lightbulb, color: AppColors.primary),
+              label: 'Советы',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home, color: AppColors.primary),
+              label: 'Главная',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.add_circle_outline),
+              selectedIcon: Icon(Icons.add_circle, color: AppColors.primary),
+              label: 'Внести',
+            ),
+          ],
+        ),
       ),
     );
   }
